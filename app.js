@@ -15,6 +15,12 @@ app.get('/', (req, res) => {
     res.render('calculator.ejs')
 })
 
+app.get('/calculator', (req, res) => {
+    //test github
+    res.render('new.ejs')
+})
+
+
 app.listen(3000, () => {
     console.log('Listening on Port 3000!!')
 })
