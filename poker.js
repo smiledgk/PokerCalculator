@@ -495,7 +495,6 @@ async function getPlayersEV(times) {
 
 async function fillEVText(times) {
   const EVObject = await getPlayersEV(times)
-  console.log(EVObject)
   firstPlayerEVText.innerText = `${EVObject.firstPlayerEV.toFixed(2)} %`
   secondPlayerEVText.innerText = `${EVObject.secondPlayerEV.toFixed(2)} %`
   drawEVText.innerText = `${EVObject.drawPercent.toFixed(2)} %`
@@ -864,17 +863,15 @@ function equalComboStrengthCheck(comboStrength, firstPlayerCombo, secondPlayerCo
 
 function determineCombo(cards) {
   if (cards.length >= 5) {
-    let combination = {}
-    if (RoyalFlush(cards)) combination = RoyalFlush(cards);
-    else if (StraightFlush(cards)) combination = StraightFlush(cards)
-    else if (Quads(cards)) combination = Quads(cards)
-    else if (FullHouse(cards)) combination = FullHouse(cards)
-    else if (Flush(cards)) combination = Flush(cards)
-    else if (Straight(cards)) combination = Straight(cards)
-    else if (ThreeOfAKind(cards)) combination = ThreeOfAKind(cards)
-    else if (TwoPair(cards)) combination = TwoPair(cards)
-    else if (Pair(cards)) combination = Pair(cards)
-    else combination = HighCard(cards)
-    return combination
+    if (RoyalFlush(cards)) return RoyalFlush(cards);
+    else if (StraightFlush(cards)) return StraightFlush(cards)
+    else if (Quads(cards)) return Quads(cards)
+    else if (FullHouse(cards)) return FullHouse(cards)
+    else if (Flush(cards)) return Flush(cards)
+    else if (Straight(cards)) return Straight(cards)
+    else if (ThreeOfAKind(cards)) return ThreeOfAKind(cards)
+    else if (TwoPair(cards)) return TwoPair(cards)
+    else if (Pair(cards)) return Pair(cards)
+    else return HighCard(cards)
   } else alert(`Please Complete all the Cards`)
 }

@@ -116,6 +116,7 @@ export const ThreeOfAKind = (cards) => {
 export const TwoPair = (cards) => {
   const sortedCards = cards.sort((a, b) => rankValues[b.rank] - rankValues[a.rank]);
   const repetitions = separateRepetitions(sortedCards).sort((a, b) => rankValues[b[0].rank] - rankValues[a[0].rank])
+  console.log(repetitions)
   if (repetitions.length == 0) return false
   if (repetitions && repetitions.length > 1 && repetitions[0].length == 2 && repetitions[1].length == 2) {
     const twoPairs = sortedCards.filter(card => card.rank == repetitions[0][0].rank || card.rank == repetitions[1][0].rank)
@@ -129,7 +130,7 @@ export const Pair = (cards) => {
   const sortedCards = cards.sort((a, b) => rankValues[b.rank] - rankValues[a.rank]);
   const repetitions = separateRepetitions(sortedCards)
   if (repetitions.length == 0) return false
-  if (repetitions && repetitions.length == 1 && repetitions[0].length == 2) {
+  if (repetitions || repetitions.length == 1 || repetitions[0].length == 2) {
     const pair = sortedCards.filter(card => card.rank == repetitions[0][0].rank)
     const kicker = sortedCards.filter(card => card.rank !== repetitions[0][0].rank).slice(0, 3)
     const combo = pair.concat(kicker)
