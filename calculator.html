@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="https://kit.fontawesome.com/6eca2c2b0c.js" crossorigin="anonymous"></script>
     <script type="module" src="./scripts/displayFunction.js"></script>
     <script type="module" src="./scripts/checkHandStrength.js"></script>
     <script type="module" src="./poker.js"></script>
@@ -16,16 +17,11 @@
 <body class="text-center">
     <div class="container">
         <div class="row">
-            <div class="col-md-7 mt-2">
-                <div class="row"></div>
-                <div class="row mt-3">
-                    <div class="col-md-1"></div>
-                    <div class="col-md-10">
-                        <div class="card-container">
+            <div class="col-md-8">
+                <div class="game-table mt-5">
+                    <div class="col-md-8 mt-3" style="margin: auto;">
+                        <div class="communityCards">
                             <div class="flop">
-                                <button class="deleteButton" style="margin-bottom: 5px;" id="buttonDeleteFlop"></button>
-                                <button class="btn btn-sm btn-success randomizeButton" id="buttonRandomizeFlop"
-                                    style="margin-bottom: 5px;">Random</button>
                                 <div class="flopcards" id="Flop">
                                     <div class="card" id="Flop1">
                                         <a href="" class="facedownCard"><img src="Files/CardFaceDown.png"
@@ -40,46 +36,47 @@
                                                 alt="Flop 3"></a>
                                     </div>
                                 </div>
-                                <div class="card-label">
-                                    <button class="btn btn-sm btn-secondary insertButton"
-                                        id="buttonInsertFlop">Flop</button>
+                                <div class="faceDownCardButtons">
+                                    <button class="randomizeButton" id="buttonRandomizeFlop"><i
+                                            class="fas fa-shuffle"></i></button>
+                                    <button class="insertButton" id="buttonInsertFlop"><i
+                                            class="fa-regular fa-pen-to-square"></i></button>
+                                    <button class="deleteButton" id="buttonDeleteFlop"><i
+                                            class="fa-solid fa-trash"></i></button>
                                 </div>
                             </div>
-                            <div class="heightAligning" id="Turn">
-                                <button class="deleteButton" style="margin-bottom: 5px;" id="buttonDeleteTurn"></button>
-                                <button class="btn btn-sm btn-success randomizeButton" id="buttonRandomizeTurn"
-                                    style="margin-bottom: 5px;">Random</button>
+                            <div class="SingleCommunity" id="Turn">
                                 <div class="card" id="Turn">
                                     <a href="" class="facedownCard"><img src="Files/CardFaceDown.png" alt="Turn"></a>
                                 </div>
-                                <div class="card-label">
-                                    <button class="btn btn-sm btn-secondary insertButton"
-                                        id="buttonInsertTurn">Turn</button>
+                                <div class="faceDownCardButtons">
+                                    <button class="randomizeButton" id="buttonRandomizeTurn"><i
+                                            class="fas fa-shuffle"></i></button>
+                                    <button class="insertButton" id="buttonInsertTurn"><i
+                                            class="fa-regular fa-pen-to-square"></i></button>
+                                    <button class="deleteButton" id="buttonDeleteTurn"><i
+                                            class="fa-solid fa-trash"></i></button>
                                 </div>
                             </div>
-                            <div class="heightAligning" id="River">
-                                <button class="deleteButton" style="margin-bottom: 5px;" id="buttonDeleteRiver"></button>
-                                <button class="btn btn-sm btn-success randomizeButton" id="buttonRandomizeRiver"
-                                    style="margin-bottom: 5px;">Random</button>
+                            <div class="SingleCommunity" id="River">
                                 <div class="card" id="River">
                                     <a href="" class="facedownCard"><img src="Files/CardFaceDown.png" alt="River"></a>
                                 </div>
-                                <div class="card-label">
-                                    <button class="btn btn-sm btn-secondary insertButton"
-                                        id="buttonInsertRiver">River</button>
+                                <div class="faceDownCardButtons">
+                                    <button class="randomizeButton" id="buttonRandomizeRiver"><i
+                                            class="fas fa-shuffle"></i></button>
+                                    <button class="insertButton" id="buttonInsertRiver"><i
+                                            class="fa-regular fa-pen-to-square"></i></button>
+                                    <button class="deleteButton" id="buttonDeleteRiver"><i
+                                            class="fa-solid fa-trash"></i></button>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-1"></div>
                     </div>
-
-                    <!-- Third Row (4 columns) -->
-                    <div class="row mt-3">
+                    <div class="row playerHands">
                         <div class="col-md-1"></div>
-                        <div class="col-md-5 playerHandFull">
-                            <button class="deleteButton" style="margin-bottom: 5px;" id="buttonDeleteHand1"></button>
-                            <button class="btn btn-sm btn-success randomizeButton"
-                                id="buttonRandomizeHand1">Random</button>
+                        <div class="col-md-3 playerHandFull">
+                            <h5><b>Player 1</b></h5>
                             <div class="playerHand" id="Hand1">
                                 <div class="card playerCard" id="FirstPlayerHand1">
                                     <a href="" class="facedownCard"><img src="Files/CardFaceDown.png" alt="Turn"></a>
@@ -87,16 +84,19 @@
                                 <div class="card playerCard" id="FirstPlayerHand2">
                                     <a href="" class="facedownCard"><img src="Files/CardFaceDown.png" alt="River"></a>
                                 </div>
-                                <div class='handStrengthList' id="handStrengthListHand1">
-
-                                </div>
+                                <div class='handStrengthList' id="handStrengthListHand1"></div>
                             </div>
-                            <button class="btn btn-sm btn-secondary insertButton" id="buttonInsertHand1">You</button>
+                            <div class="faceDownCardButtons">
+                                <button class="randomizeButton" id="buttonRandomizeHand1"><i
+                                        class="fas fa-shuffle"></i></button>
+                                <button class="insertButton" id="buttonInsertHand1"><i
+                                        class="fa-regular fa-pen-to-square"></i></button>
+                                <button class="deleteButton" id="buttonDeleteHand1"><i
+                                        class="fa-solid fa-trash"></i></button>
+                            </div>
                         </div>
-                        <div class="col-md-5 playerHandFull">
-                            <button class="deleteButton" style="margin-bottom: 5px;" id="buttonDeleteHand2"></button>
-                            <button class="btn btn-sm btn-success randomizeButton"
-                                id="buttonRandomizeHand2">Random</button>
+                        <div class="col-md-3 playerHandFull">
+                            <h5><b>Player 2</b></h5>
                             <div class="playerHand" id="Hand2">
                                 <div class="card playerCard" id="SecondPlayerHand1">
                                     <a href="" class="facedownCard"><img src="Files/CardFaceDown.png" alt="Turn"></a>
@@ -104,105 +104,110 @@
                                 <div class="card playerCard" id="SecondPlayerHand2">
                                     <a href="" class="facedownCard"><img src="Files/CardFaceDown.png" alt="River"></a>
                                 </div>
-                                <div class='handStrengthList' id="handStrengthListHand2">
-
-                                </div>
+                                <div class='handStrengthList' id="handStrengthListHand2"></div>
                             </div>
-                            <button class="btn btn-sm btn-secondary insertButton" id="buttonInsertHand2"
-                                style="margin-right: 5px;">Hand2</button>
+                            <div class="faceDownCardButtons">
+                                <button class="randomizeButton" id="buttonRandomizeHand2"><i
+                                        class="fas fa-shuffle"></i></button>
+                                <button class="insertButton" id="buttonInsertHand2"><i
+                                        class="fa-regular fa-pen-to-square"></i></button>
+                                <button class="deleteButton" id="buttonDeleteHand2"><i
+                                        class="fa-solid fa-trash"></i></button>
+                            </div>
                         </div>
                         <div class="col-md-1"></div>
                     </div>
                 </div>
-                <div class="row mt-5">
-                    <div class="col-md-9 equity-text">
-                        <div class="row justify-content-center">
-                            <div class="col-md-3">
-                                <h5 style="text-align: center;">Player 1</h5>
-                            </div>
-                            <div class="col-md-3">
+            </div>
+            <div class="row mt-5">
+                <div class="col-md-9 equity-text">
+                    <div class="row justify-content-center">
+                        <div class="col-md-3">
+                            <h5 style="text-align: center;">Player 1</h5>
+                        </div>
+                        <div class="col-md-3">
 
-                            </div>
-                            <div class="col-md-3">
-                                <h5 style="text-align: center;">Player 2</h5>
-                            </div>
                         </div>
-                        <div class="row justify-content-center">
-                            <div class="col-md-3">
-                                <h5 style="text-align: center;"><b id="firstPlayerEVText"></b></h5>
-                            </div>
-                            <div class="col-md-3">
-                                <h5 style="text-align: center;">Win</h5>
-                            </div>
-                            <div class="col-md-3">
-                                <h5 style="text-align: center;"><b id="secondPlayerEVText"></b></h5>
-                            </div>
-                        </div>
-                        <div class="row justify-content-center">
-                            <div class="col-md-3"></div>
-                            <div class="col-md-3">
-                                <h5 style="text-align: center;">Draw</h5>
-                            </div>
-                            <div class="col-md-3"></div>
-                        </div>
-                        <div class="row justify-content-center">
-                            <div class="col-md-3"></div>
-                            <div class="col-md-3">
-                                <h5 style="text-align: center;"><b id="drawEVText"></b></h5>
-                            </div>
-                            <div class="col-md-3"></div>
-                        </div>
-                        <div class="row justify-content-center mt-3">
-                            <div class="col-md-3"></div>
-                            <div class="col-md-3">
-                                <button class="btn btn-success" id="runSimButton" style="margin-bottom: 20px;">Run
-                                    Simulation</button>
-                            </div>
-                            <div class="col-md-3"></div>
+                        <div class="col-md-3">
+                            <h5 style="text-align: center;">Player 2</h5>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <form class="form-inline" id="formOdds">
-                            <div class="form-group">
-                                <label for="dropdownInput">Select an Player:</label>
-                                <select class="form-control" id="dropdownInput">
-                                    <option value="Hand1">Player 1</option>
-                                    <option value="Hand2">Player 2</option>
-                                </select>
-                            </div>
-                            <button class="btn btn-primary btn-sm oddsButton" id="buttonOddsHand1"
-                                style="margin-top: 5px;" type="submit">See Your Odds!</button>
-                        </form>
+                    <div class="row justify-content-center">
+                        <div class="col-md-3">
+                            <h5 style="text-align: center;"><b id="firstPlayerEVText"></b></h5>
+                        </div>
+                        <div class="col-md-3">
+                            <h5 style="text-align: center;">Win</h5>
+                        </div>
+                        <div class="col-md-3">
+                            <h5 style="text-align: center;"><b id="secondPlayerEVText"></b></h5>
+                        </div>
                     </div>
+                    <div class="row justify-content-center">
+                        <div class="col-md-3"></div>
+                        <div class="col-md-3">
+                            <h5 style="text-align: center;">Draw</h5>
+                        </div>
+                        <div class="col-md-3"></div>
+                    </div>
+                    <div class="row justify-content-center">
+                        <div class="col-md-3"></div>
+                        <div class="col-md-3">
+                            <h5 style="text-align: center;"><b id="drawEVText"></b></h5>
+                        </div>
+                        <div class="col-md-3"></div>
+                    </div>
+                    <div class="row justify-content-center mt-3">
+                        <div class="col-md-3"></div>
+                        <div class="col-md-3">
+                            <button class="btn btn-success" id="runSimButton" style="margin-bottom: 20px;">Run
+                                Simulation</button>
+                        </div>
+                        <div class="col-md-3"></div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <form class="form-inline" id="formOdds">
+                        <div class="form-group">
+                            <label for="dropdownInput">Select an Player:</label>
+                            <select class="form-control" id="dropdownInput">
+                                <option value="Hand1">Player 1</option>
+                                <option value="Hand2">Player 2</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary btn-sm oddsButton" id="buttonOddsHand1" style="margin-top: 5px;"
+                            type="submit">See Your Odds!</button>
+                    </form>
                 </div>
             </div>
-            <div class="col-md-4 mt-2">
-                <div id="overlay"></div>
-                <div id="popup">
-                    <div class="cardForChoice">
-                        <div class="card-row" id="Diamonds"></div>
-                        <div class="card-row" id="Hearts"></div>
-                        <div class="card-row" id="Spades"></div>
-                        <div class="card-row" id="Clubs"></div>
-                    </div>
-                    <button class="btn btn-success" id="buttonclosePopUp">Close</button>
-                </div>
-                <div class="row mt-3">
-                    <ul class="list-group mt-3" id="pokerCombosList"><!-- list of poker combos in js --></ul>
-                </div>
-                <div class="row mt-3">
-                    <h5 id="yourCurrentHand" class="mt-2"></h5>
-                    <div class="col-md-6">
-                        <ul class="list-group" id="outsList"><!-- list of poker combos in js --></ul>
-                    </div>
-                    <div class="col-md-6">
-                        <ul class="list-group" id="bestCardsList"><!-- list of poker combos in js --></ul>
-                    </div>
-                </div>
-            </div>
-            <!-- Second Column (width 3) -->
-
         </div>
+        <div class="col-md-4 mt-2">
+            <div id="overlay"></div>
+            <div id="popup">
+                <div class="cardForChoice">
+                    <div class="card-row" id="Diamonds"></div>
+                    <div class="card-row" id="Hearts"></div>
+                    <div class="card-row" id="Spades"></div>
+                    <div class="card-row" id="Clubs"></div>
+                </div>
+                <button class="btn btn-success" id="buttonclosePopUp">Close</button>
+            </div>
+            <div class="row mt-3">
+                <ul class="list-group mt-3" id="pokerCombosList"><!-- list of poker combos in js --></ul>
+            </div>
+            <div class="row mt-3">
+                <h5 id="yourCurrentHand" class="mt-2"></h5>
+                <div class="col-md-6">
+                    <ul class="list-group" id="outsList"><!-- list of poker combos in js --></ul>
+                </div>
+                <div class="col-md-6">
+                    <ul class="list-group" id="bestCardsList"><!-- list of poker combos in js --></ul>
+                </div>
+            </div>
+        </div>
+        <!-- Second Column (width 3) -->
+
+    </div>
     </div>
 
 
