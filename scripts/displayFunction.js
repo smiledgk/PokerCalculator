@@ -5,7 +5,6 @@ for (let suit of suits) {
         const button = document.createElement('button')
         card.classList.add('choiceCard')
         const img = document.createElement('img')
-
         img.setAttribute('src', `../Files/Cards/${ranks[i - 2].toLowerCase()}_of_${suit.toLowerCase()}.png`)
         button.setAttribute('id', `${ranks[i - 2].toLowerCase()}_of_${suit.toLowerCase()}`)
         card.setAttribute('id', `${ranks[i - 2].toLowerCase()}_of_${suit.toLowerCase()}`)

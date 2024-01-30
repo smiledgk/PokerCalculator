@@ -116,12 +116,15 @@ export const ThreeOfAKind = (cards) => {
 export const TwoPair = (cards) => {
   const sortedCards = cards.sort((a, b) => rankValues[b.rank] - rankValues[a.rank]);
   const repetitions = separateRepetitions(sortedCards).sort((a, b) => rankValues[b[0].rank] - rankValues[a[0].rank])
-  console.log(repetitions)
   if (repetitions.length == 0) return false
   if (repetitions && repetitions.length > 1 && repetitions[0].length == 2 && repetitions[1].length == 2) {
     const twoPairs = sortedCards.filter(card => card.rank == repetitions[0][0].rank || card.rank == repetitions[1][0].rank)
-    const kicker = sortedCards.filter(card => card.rank !== repetitions[0][0].rank || card.rank !== repetitions[1][0].rank).slice(0, 1)
+    const kicker = sortedCards.map(card => {
+      const spreadedRepetitions = [].concat(...repetitions)
+      if (!spreadedRepetitions.includes(card)) return card
+    }).filter(card => card != undefined)
     const combo = sortCombo(twoPairs.concat(kicker))
+    //console.log(sortedCards, repetitions, kicker, combo)
     return { combo: 'Two Pair', firstPair: transformRank(combo[0].rank), secondPair: transformRank(combo[2].rank), highest: transformRank(combo[4].rank), strength: 2 }
   } else return false
 }

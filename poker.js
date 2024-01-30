@@ -70,7 +70,7 @@ randomButtons.forEach(button => {
 
 deleteButtons.forEach(button => {
   const position = button.id.replace('buttonDelete', '')
-  button.addEventListener('click', () => deleteStreet(position))
+  button.addEventListener('click', () => deletePosition(position))
 })
 
 buttonclosePopUp.addEventListener('click', closeCardsForChoicePopUp)
@@ -148,22 +148,36 @@ function closeCardsForChoicePopUp() {
   }, 300);
 }
 
-function deleteStreet(position) {
+
+function deletePosition(position) {
   const replaceCards = document.querySelectorAll(`#${position} .card`)
-  console.log(replaceCards)
+ // unassignFaceDownCards(position)
   replaceCards.forEach(card => {
     const img = card.querySelector('img')
     img.src = 'Files/CardFaceDown.png';
     card.classList.remove('changed')
   })
-  const arrayCard = cards.find(facedownCard => facedownCard.name.replace(/\d/g, '') == position.replace('Hand1', 'FirstPlayerHand').replace('Hand2', 'SecondPlayerHand'))
-  arrayCard.isChosen = false
-  arrayCard.card.classList.remove('changed')
-  arrayCard.tag = ''
-  arrayCard.value = {
-    rank: '',
-    suit: ''
-  }
+  const arrayCard = cards.filter(facedownCard => facedownCard.name.replace(/\d/g, '') == position.replace('Hand1', 'FirstPlayerHand').replace('Hand2', 'SecondPlayerHand'))
+  const neededTags = []
+  cards.forEach(card => {
+    if (arrayCard.includes(card)) {
+      card.isChosen = false
+      neededTags.push(card.tag)
+      card.tag = ''
+      card.value = {
+        rank: '',
+        suit: ''
+    }
+    }
+  })
+  console.log(neededTags)
+  choiceCards.forEach(card => {
+    if (neededTags.includes(card.id)) {
+      console.log(card)
+      card.style.visibility = 'visible'
+      card.classList.remove('changed')
+    }
+  })
 }
 
 function unlockAllButtons() {
@@ -244,36 +258,50 @@ function editCard(replaceCard, newCard) {
           replaceCard[i].classList.add('changed')
           counter++
           if (i === replaceCard.length - 1) changed = true
-          if (changed) unlockAllButtons()
+          if (changed) {
+            closeCardsForChoicePopUp()
+            unlockAllButtons()
+          }
         }
       }
     }
-    /*faceDownCards.forEach(button => {
-      button.addEventListener('click', toggleEditModeSingle);
-    });
-    insertButtons.forEach(button => {
-      button.addEventListener('click', toggleEditModeButton);
-    });*/
   } else {
     const img = replaceCard.querySelector('img');
     replaceCard.classList.add('changed')
     img.src = `Files/Cards/${newCard.id}.png`;
     assignFaceDownCard(newCard, replaceCard)
-    faceDownCards.forEach(button => {
-      button.addEventListener('click', toggleEditModeSingle);
-    });
+    closeCardsForChoicePopUp()
+    unlockAllButtons()
   }
 }
 
 function assignFaceDownCard(newCard, replaceCard) {
-
   const cardValue = newCard.id
   choiceCards.forEach(card => {
     if (card.id === cardValue) {
       card.style.visibility = 'hidden';
+      card.classList.add('inUse')
     }
   });
+  const arrayCard = cards.find(facedownCard => facedownCard.name == replaceCard.id)
+  arrayCard.isChosen = true
+  arrayCard.tag = newCard.id
+  arrayCard.value = {
+    rank: extractCard(newCard.id).rank,
+    suit: extractCard(newCard.id).suit
+  }
+}
 
+function unassignFaceDownCards(position) {
+  const replaceCards = document.querySelectorAll(`#${position} .card`)
+  console.log(replaceCards)
+  const cardValue = newCard.id
+  choiceCards.forEach(card => {
+    if (card.id === cardValue) {
+      card.style.visibility = 'hidden';
+      card.classList.add('inUse')
+    }
+  });
   const arrayCard = cards.find(facedownCard => facedownCard.name == replaceCard.id)
   arrayCard.isChosen = true
   arrayCard.tag = newCard.id
@@ -294,7 +322,7 @@ function extractCard(card) {
 
 
 /////////////////////////// simulation after
-runSimButton.addEventListener('click', () => fillEVText(100000))
+runSimButton.addEventListener('click', () => fillEVText(10000))
 oddsForm.addEventListener('submit', async function (event) {
   event.preventDefault();
   const player = ((document.getElementById('dropdownInput').value.replace('Hand', '') === '1') ? 'firstPlayer' : 'secondPlayer')
@@ -832,6 +860,7 @@ function checkWin(cards1, cards2) {
     count.secondPlayerWins += drawCount.secondPlayerWins;
     count.draws += drawCount.draws;
   }
+  if (count.draws === 1) console.log(firstPlayerCombo, cards1, secondPlayerCombo, cards2)
   return count
 }
 
