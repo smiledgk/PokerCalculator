@@ -2,6 +2,7 @@
 import { RoyalFlush, StraightFlush, Quads, FullHouse, Flush, Straight, ThreeOfAKind, TwoPair, Pair, HighCard } from './scripts/checkHandStrength.js'
 import { StraightFlushWinnerCheck, QuadsWinnerCheck, FullHouseWinnerCheck, FlushWinnerCheck, StraightWinnerCheck, ThreeOfAKindWinnerCheck, TwoPairWinnerCheck, OnePairWinnerCheck, HighCardWinnerCheck } from './scripts/equalHandsWinnerCheck.js'
 import { pokerCombinations, ranks, suits, rankValues, randomNumbers } from './scripts/helperVariables.js'
+//import { drawChart } from './scripts/drawChart.js'
 
 //getting buttons and containers
 let choiceCards = document.querySelectorAll('.choiceCard')
@@ -39,6 +40,11 @@ const pokerCombosList = document.querySelector('#pokerCombosList')
 const bestCardsList = document.querySelector('#bestCardsList')
 const outsList = document.querySelector('#outsList')
 const yourCurrentHandText = document.querySelector('#yourCurrentHand')
+const drawChartButton = document.getElementById('buttonDrawChart')
+drawChartButton.addEventListener('click', function () {
+  google.charts.load('current', { 'packages': ['corechart'] });
+  google.charts.setOnLoadCallback(drawChart);
+});
 
 //getting array of cards containing card divs and parameters, later will be used for calculations
 const cards = [
@@ -526,7 +532,6 @@ async function fillEVText(times) {
   firstPlayerEVText.innerText = `${EVObject.firstPlayerEV.toFixed(2)} %`
   secondPlayerEVText.innerText = `${EVObject.secondPlayerEV.toFixed(2)} %`
   drawEVText.innerText = `${EVObject.drawPercent.toFixed(2)} %`
-
   if (EVObject.firstPlayerEV > EVObject.secondPlayerEV) {
     firstPlayerEVText.style.color = 'green'
     secondPlayerEVText.style.color = 'red'
@@ -860,7 +865,6 @@ function checkWin(cards1, cards2) {
     count.secondPlayerWins += drawCount.secondPlayerWins;
     count.draws += drawCount.draws;
   }
-  if (count.draws === 1) console.log(firstPlayerCombo, cards1, secondPlayerCombo, cards2)
   return count
 }
 
