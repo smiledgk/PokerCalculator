@@ -1,51 +1,33 @@
-
 import { RoyalFlush, StraightFlush, Quads, FullHouse, Flush, Straight, ThreeOfAKind, TwoPair, Pair, HighCard } from './scripts/checkHandStrength.js'
 import { StraightFlushWinnerCheck, QuadsWinnerCheck, FullHouseWinnerCheck, FlushWinnerCheck, StraightWinnerCheck, ThreeOfAKindWinnerCheck, TwoPairWinnerCheck, OnePairWinnerCheck, HighCardWinnerCheck } from './scripts/equalHandsWinnerCheck.js'
 import { pokerCombinations, ranks, suits, rankValues, randomNumbers } from './scripts/helperVariables.js'
-//import { drawChart } from './scripts/drawChart.js'
 
-//getting buttons and containers
+const idElements = [
+  'Flop1', 'Flop2', 'Flop3', 'Turn', 'River',
+  'FirstPlayerHand1', 'FirstPlayerHand2',
+  'SecondPlayerHand1', 'SecondPlayerHand2', 'buttonclosePopUp', 'runSimButton',
+  'formOdds', 'firstPlayerEVText', 'secondPlayerEVText', 'drawEVText', 'pokerCombosList',
+  'bestCardsList', 'outsList', 'yourCurrentHandText'
+];
+
+const classElements = ['facedownCard', 'randomizeButton', 'deleteButton', 'oddsButton']
+
+const getDomElementById = (id) => document.querySelector(`#${id}`);
+const getAllDomElementByClass = (className) => document.querySelectorAll(`.${className}`);
+
+// Destructuring assignment
+const [flop1, flop2, flop3, turnC, riverC, firstPlayerCard1, firstPlayerCard2,
+  secondPlayerCard1, secondPlayerCard2, buttonclosePopUp, runSimButton,
+  oddsForm, firstPlayerEVText, secondPlayerEVText, drawEVText, pokerCombosList,
+  bestCardsList, outsList] = idElements.map(getDomElementById);
+const [faceDownCards, randomButtons, deleteButtons, oddsButtons] = classElements.map(getAllDomElementByClass);
+let insertButtons = document.querySelectorAll('.insertButton')
 let choiceCards = document.querySelectorAll('.choiceCard')
-//getting community cards
-const flop1 = document.querySelector('#Flop1')
-const flop2 = document.querySelector('#Flop2')
-const flop3 = document.querySelector('#Flop3')
-const turnC = document.querySelector('#Turn')
-const riverC = document.querySelector('#River')
-//first player hand cards
-const firstPlayerCard1 = document.querySelector('#FirstPlayerHand1')
-const firstPlayerCard2 = document.querySelector('#FirstPlayerHand2')
-//second player hand
-const secondPlayerCard1 = document.querySelector('#SecondPlayerHand1')
-const secondPlayerCard2 = document.querySelector('#SecondPlayerHand2')
+
 //switching edit and non edit modes
 let editModeOn = false;
-let lockButtons = false;
+//players array 
 const players = ['firstPlayer', 'secondPlayer']
-//facedown card buttons for editing cards, insert buttons for multiple editing, random buttons for random assignment
-const faceDownCards = document.querySelectorAll('.facedownCard')
-let insertButtons = document.querySelectorAll('.insertButton')
-const randomButtons = document.querySelectorAll('.randomizeButton')
-const buttonclosePopUp = document.querySelector('#buttonclosePopUp')
-const deleteButtons = document.querySelectorAll('.deleteButton')
-//calculation Buttons
-const runSimButton = document.querySelector('#runSimButton')
-const oddsForm = document.getElementById('formOdds')
-//ev display
-const firstPlayerEVText = document.querySelector('#firstPlayerEVText')
-const secondPlayerEVText = document.querySelector('#secondPlayerEVText')
-const drawEVText = document.querySelector('#drawEVText')
-//combos and outs list
-const pokerCombosList = document.querySelector('#pokerCombosList')
-const bestCardsList = document.querySelector('#bestCardsList')
-const outsList = document.querySelector('#outsList')
-const yourCurrentHandText = document.querySelector('#yourCurrentHand')
-const drawChartButton = document.getElementById('buttonDrawChart')
-drawChartButton.addEventListener('click', function () {
-  google.charts.load('current', { 'packages': ['corechart'] });
-  google.charts.setOnLoadCallback(drawChart);
-});
-
 //getting array of cards containing card divs and parameters, later will be used for calculations
 const cards = [
   { name: 'FirstPlayerHand1', card: firstPlayerCard1, isChosen: false, order: 1 },
@@ -60,104 +42,80 @@ const cards = [
 
 ];
 
-//assignment of functions for buttons
-faceDownCards.forEach(button => {
-  button.addEventListener('click', toggleEditModeSingle)
+unlockAllButtons()
+runSimButton.addEventListener('click', () => fillEVText(10000))
+oddsButtons.forEach(button => {
+  button.addEventListener('click', async function (event) {
+    const player = ((button.id.replace('buttonOddsHand', '') === '1') ? 'firstPlayer' : 'secondPlayer')
+    if (checkStreet() == 'River') alert('No more Cards to come')
+    else await oddsOfImproving(player, 100000)
+  });
 })
-
-insertButtons.forEach(button => {
-  button.addEventListener('click', toggleEditModeButton)
-})
-
-randomButtons.forEach(button => {
-  const target = button.id.replace('buttonRandomize', '')
-  button.addEventListener('click', () => randomizeCards(target))
-})
-
-deleteButtons.forEach(button => {
-  const position = button.id.replace('buttonDelete', '')
-  button.addEventListener('click', () => deletePosition(position))
-})
-
-buttonclosePopUp.addEventListener('click', closeCardsForChoicePopUp)
 
 //button functions
-function toggleEditModeSingle(event) {
-  event.preventDefault()
-  replaceCard = this.parentNode
-  const button = event.target
-  lockAllButtons(button)
-  toggleChooseCardMode(replaceCard)
-  toggleChoiceModeCards()
-  choiceCards.forEach(card => {
-    card.addEventListener('click', () => editCard(replaceCard, card))
-  })
-}
-
-function toggleEditModeButton(event) {
-  const position = event.currentTarget.id.replace('buttonInsert', '');
-  toggleEditModeButtonHelper(position);
-}
-function toggleEditModeButtonHelper(position) {
-  lockButtons = !lockButtons
-  openCardsForChoicePopUp()
-  const button = document.querySelector(`#buttonInsert${position}`)
+function toggleEditMode(position) {
+  console.log('called')
+  lockAllButtons()
   const replaceCards = document.querySelectorAll(`#${position} .card`)
-  if (lockButtons) {
-    lockAllButtons(button)
-  } else {
-    for (let insertButton of insertButtons) {
-      insertButton.addEventListener('click', toggleEditModeButton)
-    }
-    faceDownCards.forEach(button => {
-      button.addEventListener('click', toggleEditModeSingle);
-    });
-  }
-  toggleChooseCardMode(undefined, position)
+  toggleChooseCardMode(position)
   toggleChoiceModeCards()
   choiceCards.forEach(card => {
-    card.addEventListener('click', () => editCard(replaceCards, card))
+    card.addEventListener('click', () => assignCard(replaceCards, card))
   })
 }
 
-function lockAllButtons(button) {
-  insertButtons.forEach(otherButton => {
-    if (otherButton !== button) {
-      otherButton.removeEventListener('click', toggleEditModeButton);
-    }
-  });
-  faceDownCards.forEach(otherButton => {
-    if (otherButton !== button) {
-      otherButton.removeEventListener('click', toggleEditModeSingle);
-    }
-  });
-  randomButtons.forEach(otherButton => {
-    if (otherButton !== button) {
-      otherButton.removeEventListener('click', randomizeCards)
-    }
-  })
-}
-
-function openCardsForChoicePopUp() {
-  document.getElementById('overlay').style.display = 'block';
-  document.getElementById('popup').style.display = 'block';
-  setTimeout(function () {
-    popup.style.opacity = '1';
-  }, 50);
-}
-
-function closeCardsForChoicePopUp() {
-  document.getElementById('overlay').style.display = 'none';
-  document.getElementById('popup').style.display = 'none';
-  setTimeout(function () {
+let popUpToggled = false
+function toggleCardsForChoicePopUp() {
+  popUpToggled = !popUpToggled
+  const popup = document.getElementById('popup');
+  if (!popUpToggled) {
+    // If the popup is currently visible, hide it
     popup.style.display = 'none';
-  }, 300);
+    popup.style.opacity = '0';
+    const getCardDivsByClass = (className) => document.querySelectorAll(`.${className}`);
+    const divClasses = ['Flop', 'Turn', 'River', 'Hand1', 'Hand2']
+    const cardDivs = divClasses.map(getCardDivsByClass);
+    cardDivs.forEach(cardDiv => {
+      if (cardDiv[0].classList.contains('highlighted')) cardDiv[0].classList.remove('highlighted')
+    });
+  } else {
+    popup.style.display = 'block';
+    buttonclosePopUp.addEventListener('click', toggleCardsForChoicePopUp)
+    buttonclosePopUp.addEventListener('click', unlockAllButtons)
+    popup.style.opacity = '1';
+  }
 }
 
+async function toggleChooseCardMode(position) {
+  await toggleCardsForChoicePopUp()
+  console.log(position)
+  const positionDiv = document.querySelector(`.${position}`)
+  if (positionDiv) {
+    positionDiv.classList.toggle('highlighted')
+  }
+  document.getElementById('overlay').style.display = 'block';
+  console.log(positionDiv)
+}
+
+function toggleChoiceModeCards() {
+  editModeOn = !editModeOn;
+  choiceCards.forEach(card => {
+    // Clear all existing event listeners
+    card.removeEventListener("mouseenter", handleMouseEnter);
+    card.removeEventListener("mouseleave", handleMouseLeave);
+    if (editModeOn) {
+      // Re-add event listeners when hover effect is active
+      card.addEventListener("mouseenter", handleMouseEnter);
+      card.addEventListener("mouseleave", handleMouseLeave);
+    }
+  });
+}
 
 function deletePosition(position) {
-  const replaceCards = document.querySelectorAll(`#${position} .card`)
- // unassignFaceDownCards(position)
+  unassignFaceDownCards(position)
+  removeDeadCard(position)
+  /*const replaceCards = document.querySelectorAll(`#${position} .card`)
+  // unassignFaceDownCards(position)
   replaceCards.forEach(card => {
     const img = card.querySelector('img')
     img.src = 'Files/CardFaceDown.png';
@@ -173,7 +131,7 @@ function deletePosition(position) {
       card.value = {
         rank: '',
         suit: ''
-    }
+      }
     }
   })
   console.log(neededTags)
@@ -183,47 +141,44 @@ function deletePosition(position) {
       card.style.visibility = 'visible'
       card.classList.remove('changed')
     }
-  })
+  })*/
 }
 
 function unlockAllButtons() {
-  faceDownCards.forEach(button => {
-    button.addEventListener('click', toggleEditModeSingle)
-  })
-
   insertButtons.forEach(button => {
-    button.addEventListener('click', toggleEditModeButton)
+    const position = button.id.replace('buttonInsert', '');
+    button.addEventListener('click', () => toggleEditMode(position))
   })
 
   randomButtons.forEach(button => {
-    const target = button.id.replace('buttonRandomize', '')
-    button.addEventListener('click', () => randomizeCards(target))
+    const position = button.id.replace('buttonRandomize', '')
+    button.addEventListener('click', () => randomizeCards(position))
+  })
+
+  deleteButtons.forEach(button => {
+    const position = button.id.replace('buttonDelete', '')
+    button.addEventListener('click', () => deletePosition(position))
   })
 }
 
-// card rows choice operation
-function toggleChooseCardMode(cardChange, position) {
-  if (!position) cardChange.classList.toggle('hover-effect')
-  else if (position) {
-    const cards = document.querySelectorAll(`#${position} .card`)
-    cards.forEach(card => {
-      card.classList.toggle('hover-effect')
-    })
-  }
-}
-function toggleChoiceModeCards() {
-  editModeOn = !editModeOn;
-  choiceCards.forEach(card => {
-    // Clear all existing event listeners
-    card.removeEventListener("mouseenter", handleMouseEnter);
-    card.removeEventListener("mouseleave", handleMouseLeave);
-    if (editModeOn) {
-      // Re-add event listeners when hover effect is active
-      card.addEventListener("mouseenter", handleMouseEnter);
-      card.addEventListener("mouseleave", handleMouseLeave);
-    }
+function lockAllButtons() {
+  insertButtons.forEach(button => {
+    button.removeEventListener('click', () => toggleEditMode(button.id.replace('buttonInsert', '')));
   });
+
+  randomButtons.forEach(button => {
+    button.removeEventListener('click', () => randomizeCards(button.id.replace('buttonRandomize', '')));
+  });
+
+  deleteButtons.forEach(button => {
+    button.removeEventListener('click', () => deletePosition(button.id.replace('buttonDelete', '')));
+  });
+  console.log('locked!')
 }
+
+// card rows choice operation
+
+
 function handleMouseEnter() {
   this.classList.add('hover-effect');
 }
@@ -231,64 +186,45 @@ function handleMouseLeave() {
   this.classList.remove('hover-effect');
 }
 
-function randomizeCards(target) {
-  const randomNrs = randomNumbers()
-  if (target == 'Flop') {
-    editCard(flop1, choiceCards[randomNrs[4]])
-    editCard(flop2, choiceCards[randomNrs[5]])
-    editCard(flop3, choiceCards[randomNrs[6]])
-  } else if (target == 'Turn') {
-    editCard(turnC, choiceCards[randomNrs[7]])
-  } else if (target == 'River') {
-    editCard(riverC, choiceCards[randomNrs[8]])
-  } else if (target == 'Hand1') {
-    editCard(firstPlayerCard1, choiceCards[randomNrs[0]])
-    editCard(firstPlayerCard2, choiceCards[randomNrs[1]])
-  } else if (target == 'Hand2') {
-    editCard(secondPlayerCard1, choiceCards[randomNrs[2]])
-    editCard(secondPlayerCard2, choiceCards[randomNrs[3]])
+async function randomizeCards(position) {
+  await unassignFaceDownCards(position)
+  await removeDeadCard(position)
+  const replaceCard = document.querySelectorAll(`#${position} .card`)
+  for (let card of replaceCard) {
+    const newCard = findAvailableRandomCard()
+    assignCard(replaceCard, newCard)
   }
 }
 
-function editCard(replaceCard, newCard) {
-  //check if button or card is pressed
-  if (NodeList.prototype.isPrototypeOf(replaceCard)) {
-    let counter = 0
-    let changed = false
-    for (let i = 0; i < replaceCard.length; i++) {
-      if (counter < 1) {
-        if (!replaceCard[i].classList.contains('changed')) {
-          const img = replaceCard[i].querySelector('img')
-          img.src = `Files/Cards/${newCard.id}.png`;
-          assignFaceDownCard(newCard, replaceCard[i])
-          replaceCard[i].classList.add('changed')
-          counter++
-          if (i === replaceCard.length - 1) changed = true
-          if (changed) {
-            closeCardsForChoicePopUp()
-            unlockAllButtons()
-          }
-        }
-      }
+function findAvailableRandomCard() {
+  let newCard;
+  for (let i = 0; i < 100000; i++) {
+    newCard = choiceCards[randomNumbers(suits.length * ranks.length)]
+    if (!newCard.classList.contains('inUse')) return newCard
+  }
+}
+
+//checked
+function assignCard(replaceCard, newCard) {
+  const numberOfCardsInPosition = replaceCard.length
+  const images = [];
+  replaceCard.forEach((divElem) => {
+    images.push(divElem.querySelector('img'))
+  })
+  let counter = 0
+  for (let i = 0; i < numberOfCardsInPosition && counter < 1; i++) {
+    if (!replaceCard[i].classList.contains('changed')) {
+      const img = replaceCard[i].querySelector('img')
+      replaceCard[i].classList.add('changed')
+      img.src = `Files/Cards/${newCard.id}.png`;
+      assignFaceDownCard(newCard, replaceCard[i])
+      addDeadCard(newCard)
+      counter++
     }
-  } else {
-    const img = replaceCard.querySelector('img');
-    replaceCard.classList.add('changed')
-    img.src = `Files/Cards/${newCard.id}.png`;
-    assignFaceDownCard(newCard, replaceCard)
-    closeCardsForChoicePopUp()
-    unlockAllButtons()
   }
 }
 
 function assignFaceDownCard(newCard, replaceCard) {
-  const cardValue = newCard.id
-  choiceCards.forEach(card => {
-    if (card.id === cardValue) {
-      card.style.visibility = 'hidden';
-      card.classList.add('inUse')
-    }
-  });
   const arrayCard = cards.find(facedownCard => facedownCard.name == replaceCard.id)
   arrayCard.isChosen = true
   arrayCard.tag = newCard.id
@@ -299,10 +235,30 @@ function assignFaceDownCard(newCard, replaceCard) {
 }
 
 function unassignFaceDownCards(position) {
-  const replaceCards = document.querySelectorAll(`#${position} .card`)
-  console.log(replaceCards)
-  const cardValue = newCard.id
+  const cardDivs = document.querySelectorAll(`#${position} .card`)
+  cardDivs.forEach(card => {
+    card.classList.remove('changed')
+    card.querySelector('img').src = 'Files/CardFaceDown.png'
+  })
+
+}
+
+function removeDeadCard(position) {
+  const arrayCards = cards.filter(card => card.name.replace(/\d/g, '') == position.replace('Hand1', 'FirstPlayerHand').replace('Hand2', 'SecondPlayerHand'))
+  const cardTags = []
+  arrayCards.map(card => {
+    card.isChosen = false;
+    cardTags.push(card.tag)
+    delete card.tag
+    delete card.value
+  })
   choiceCards.forEach(card => {
+    if (cardTags.includes(card.id)) {
+      if (card.classList.contains('inUse')) card.classList.remove('inUse')
+      card.style.visibility = 'visible';
+    }
+  })
+  /*choiceCards.forEach(card => {
     if (card.id === cardValue) {
       card.style.visibility = 'hidden';
       card.classList.add('inUse')
@@ -314,8 +270,20 @@ function unassignFaceDownCards(position) {
   arrayCard.value = {
     rank: extractCard(newCard.id).rank,
     suit: extractCard(newCard.id).suit
-  }
+  }*/
 }
+
+const deadCards = []
+function addDeadCard(newCard) {
+  deadCards.push(newCard)
+  choiceCards.forEach(card => {
+    if (card.id === newCard.id) {
+      card.style.visibility = 'hidden';
+      card.classList.add('inUse')
+    }
+  });
+}
+
 
 function extractCard(card) {
   const parts = card.split('_');
@@ -328,13 +296,7 @@ function extractCard(card) {
 
 
 /////////////////////////// simulation after
-runSimButton.addEventListener('click', () => fillEVText(10000))
-oddsForm.addEventListener('submit', async function (event) {
-  event.preventDefault();
-  const player = ((document.getElementById('dropdownInput').value.replace('Hand', '') === '1') ? 'firstPlayer' : 'secondPlayer')
-  if (checkStreet() == 'River') alert('No more Cards to come')
-  else await oddsOfImproving(player, 100000)
-});
+
 
 let firstPlayerHand = []
 let secondPlayerHand = []
@@ -544,8 +506,8 @@ async function fillEVText(times) {
 async function oddsOfImproving(player, times) {
   const comboArray = await calculateOddsOfImproving(player, times)
   const currentHand = yourCurrentHand(player)
-  yourCurrentHandText.innerText = `Your Hand is ${currentHand.combo}`
-  updateComboList(comboArray, currentHand)
+  //yourCurrentHandText.innerText = `Your Hand is ${currentHand.combo}`
+  drawChart(comboArray)
   displayOuts(player)
   displayBestCards(player)
 }
@@ -608,26 +570,27 @@ function calculateOddsOfImproving(player, times) {
     const odds = `${(combo.count * 100 / times).toFixed(3)}%`
     combo.odds = odds
   })
+  //console.log(combinationsArray)
   return combinationsArray;
 }
 
-function updateComboList(comboArray, currentHand) {
-  const liElements = pokerCombosList.querySelectorAll('li');
-  if (pokerCombosList) {
-    liElements.forEach((li, index) => {
-      li.innerHTML = ''
-      const name = comboArray.find(combo => comboArray.indexOf(combo) === index).name
-      const odds = comboArray.find(combo => comboArray.indexOf(combo) === index).odds
-      li.innerText = name
-      const badge = document.createElement('span')
-      badge.classList.add('badge', 'bg-light', 'justify-content-between', 'text-bg-light',)
-      badge.innerText = odds
-      if (name === currentHand.combo) li.remove()
-      if (parseInt(odds) === 0) li.remove()
-      li.style.visibility = 'visible'
-      li.appendChild(badge)
-    });
-  }
+function drawChart(comboArray) {
+  google.charts.load('current', { 'packages': ['corechart'] });
+  google.charts.setOnLoadCallback(function () {
+    const dataArray = [['Combination', 'Odds of Getting']]
+    for (let combo of comboArray) {
+      if (parseInt(combo.odds) !== 0) dataArray.push([combo.name, parseInt(combo.odds)])
+    }
+    dataArray.forEach(data => {
+      if (data[0] == 'High Card') data[0] = 'Nothing'
+    })
+    const data = google.visualization.arrayToDataTable(dataArray);
+    const options = {
+      title: 'Chances of Improving to the River'
+    };
+    const chart = new google.visualization.PieChart(document.getElementById('piechart'));
+    chart.draw(data, options);
+  });
 }
 
 function displayBestCards(player) {

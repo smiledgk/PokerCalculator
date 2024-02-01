@@ -18,12 +18,7 @@ export const rankValues = {
   'Jack': 11, 'Queen': 12, 'King': 13, 'Ace': 14
 }
 
-export const randomNumbers = () => {
-  const randomNumbers = []
-  do {
-    const number = Math.floor(Math.random() * 52)
-    if (!randomNumbers.includes(number)) randomNumbers.push(number)
-  } while (randomNumbers.length !== 9)
-  return randomNumbers
+export const randomNumbers = (length) => {
+  return Math.floor(Math.random() * length)
 }
 
