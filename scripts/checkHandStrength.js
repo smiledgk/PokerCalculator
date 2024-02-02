@@ -124,8 +124,8 @@ export const TwoPair = (cards) => {
       if (!spreadedRepetitions.includes(card)) return card
     }).filter(card => card != undefined)
     const combo = sortCombo(twoPairs.concat(kicker))
-    //console.log(sortedCards, repetitions, kicker, combo)
-    return { combo: 'Two Pair', firstPair: transformRank(combo[0].rank), secondPair: transformRank(combo[2].rank), highest: transformRank(combo[4].rank), strength: 2 }
+    const highestCard = (combo.length > 4) ? transformRank(combo[4].rank) : 2;
+    return { combo: 'Two Pair', firstPair: transformRank(combo[0].rank), secondPair: transformRank(combo[2].rank), highest: highestCard, strength: 2 }
   } else return false
 }
 

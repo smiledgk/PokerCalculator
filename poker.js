@@ -5,12 +5,11 @@ import { pokerCombinations, ranks, suits, rankValues, randomNumbers } from './sc
 const idElements = [
   'Flop1', 'Flop2', 'Flop3', 'Turn', 'River',
   'FirstPlayerHand1', 'FirstPlayerHand2',
-  'SecondPlayerHand1', 'SecondPlayerHand2', 'buttonclosePopUp', 'runSimButton',
-  'formOdds', 'firstPlayerEVText', 'secondPlayerEVText', 'drawEVText', 'pokerCombosList',
-  'bestCardsList', 'outsList', 'yourCurrentHandText'
+  'SecondPlayerHand1', 'SecondPlayerHand2', 'buttonclosePopUp', 'runSimButton', 'firstPlayerEVText', 'secondPlayerEVText', 'drawEVText',
+  'bestCardsList', 'outsList', 'firstPlayerCurrentHand', 'secondPlayerCurrentHand', 'firstPlayerHighlight', 'secondPlayerHighlight'
 ];
 
-const classElements = ['facedownCard', 'randomizeButton', 'deleteButton', 'oddsButton']
+const classElements = ['randomizeButton', 'deleteButton', 'oddsButton']
 
 const getDomElementById = (id) => document.querySelector(`#${id}`);
 const getAllDomElementByClass = (className) => document.querySelectorAll(`.${className}`);
@@ -18,12 +17,11 @@ const getAllDomElementByClass = (className) => document.querySelectorAll(`.${cla
 // Destructuring assignment
 const [flop1, flop2, flop3, turnC, riverC, firstPlayerCard1, firstPlayerCard2,
   secondPlayerCard1, secondPlayerCard2, buttonclosePopUp, runSimButton,
-  oddsForm, firstPlayerEVText, secondPlayerEVText, drawEVText, pokerCombosList,
-  bestCardsList, outsList] = idElements.map(getDomElementById);
-const [faceDownCards, randomButtons, deleteButtons, oddsButtons] = classElements.map(getAllDomElementByClass);
+  firstPlayerEVText, secondPlayerEVText, drawEVText,
+  bestCardsList, outsList, firstPlayerCurrentHand, secondPlayerCurrentHand, firstPlayerHighlight, secondPlayerHighlight] = idElements.map(getDomElementById);
+const [randomButtons, deleteButtons, oddsButtons] = classElements.map(getAllDomElementByClass);
 let insertButtons = document.querySelectorAll('.insertButton')
 let choiceCards = document.querySelectorAll('.choiceCard')
-
 //switching edit and non edit modes
 let editModeOn = false;
 //players array 
@@ -42,7 +40,18 @@ const cards = [
 
 ];
 
-unlockAllButtons()
+insertButtons.forEach(button => {
+  const position = button.id.replace('buttonInsert', '');
+  button.addEventListener('click', () => toggleEditMode(position, button))
+})
+randomButtons.forEach(button => {
+  const position = button.id.replace('buttonRandomize', '')
+  button.addEventListener('click', () => randomizeCards(position))
+})
+deleteButtons.forEach(button => {
+  const position = button.id.replace('buttonDelete', '')
+  button.addEventListener('click', () => deletePosition(position))
+})
 runSimButton.addEventListener('click', () => fillEVText(10000))
 oddsButtons.forEach(button => {
   button.addEventListener('click', async function (event) {
@@ -52,49 +61,50 @@ oddsButtons.forEach(button => {
   });
 })
 
+let clickHandler
 //button functions
-function toggleEditMode(position) {
-  console.log('called')
-  lockAllButtons()
-  const replaceCards = document.querySelectorAll(`#${position} .card`)
-  toggleChooseCardMode(position)
+function toggleEditMode(position, button) {
+  openCardsForChoicePopUp(position, button)
   toggleChoiceModeCards()
+  const replaceCards = document.querySelectorAll(`#${position} .card`)
+  console.log(replaceCards)
+  clickHandler = (event) => {
+    const card = event.currentTarget
+    assignCard(replaceCards, card, true, position);
+  }
   choiceCards.forEach(card => {
-    card.addEventListener('click', () => assignCard(replaceCards, card))
+    card.addEventListener('click', clickHandler)
   })
 }
 
-let popUpToggled = false
-function toggleCardsForChoicePopUp() {
-  popUpToggled = !popUpToggled
+function openCardsForChoicePopUp(position, button) {
   const popup = document.getElementById('popup');
-  if (!popUpToggled) {
-    // If the popup is currently visible, hide it
-    popup.style.display = 'none';
-    popup.style.opacity = '0';
-    const getCardDivsByClass = (className) => document.querySelectorAll(`.${className}`);
-    const divClasses = ['Flop', 'Turn', 'River', 'Hand1', 'Hand2']
-    const cardDivs = divClasses.map(getCardDivsByClass);
-    cardDivs.forEach(cardDiv => {
-      if (cardDiv[0].classList.contains('highlighted')) cardDiv[0].classList.remove('highlighted')
-    });
-  } else {
-    popup.style.display = 'block';
-    buttonclosePopUp.addEventListener('click', toggleCardsForChoicePopUp)
-    buttonclosePopUp.addEventListener('click', unlockAllButtons)
-    popup.style.opacity = '1';
-  }
+  const overlay = document.getElementById('overlay');
+  const adjPosition =
+    position === 'Hand1' ? 'Choose Your' :
+      position === 'Hand2' ? `Choose Opponent's` :
+        position ? `Choose ${position}` : 'Default Choose Value';
+  popup.querySelector('h5').innerText = `${adjPosition} Cards`
+  popup.style.top = button.getBoundingClientRect().bottom + 25 + 'px';
+  popup.style.left = button.getBoundingClientRect().right + 75 + 'px';
+  overlay.style.display = 'block';
+  popup.style.display = 'block';
+  buttonclosePopUp.addEventListener('click', () => closeCardsForChoicePopUp())
+  popup.style.opacity = '1';
 }
 
-async function toggleChooseCardMode(position) {
-  await toggleCardsForChoicePopUp()
-  console.log(position)
-  const positionDiv = document.querySelector(`.${position}`)
-  if (positionDiv) {
-    positionDiv.classList.toggle('highlighted')
-  }
-  document.getElementById('overlay').style.display = 'block';
-  console.log(positionDiv)
+function closeCardsForChoicePopUp() {
+  choiceCards.forEach(card => {
+    card.removeEventListener('click', clickHandler)
+  })
+  document.getElementById('overlay').style.display = 'none';
+  document.getElementById('popup').style.display = 'none';
+}
+
+function checkCardsFilledPosition(position) {
+  const arrayCards = cards.filter(card => card.name.replace(/\d/g, '') == position.replace('Hand1', 'FirstPlayerHand').replace('Hand2', 'SecondPlayerHand'))
+  const nonChosenCards = arrayCards.filter(card => card.isChosen === false);
+  return nonChosenCards.length !== 0 ? false : true;
 }
 
 function toggleChoiceModeCards() {
@@ -114,71 +124,11 @@ function toggleChoiceModeCards() {
 function deletePosition(position) {
   unassignFaceDownCards(position)
   removeDeadCard(position)
-  /*const replaceCards = document.querySelectorAll(`#${position} .card`)
-  // unassignFaceDownCards(position)
-  replaceCards.forEach(card => {
-    const img = card.querySelector('img')
-    img.src = 'Files/CardFaceDown.png';
-    card.classList.remove('changed')
-  })
-  const arrayCard = cards.filter(facedownCard => facedownCard.name.replace(/\d/g, '') == position.replace('Hand1', 'FirstPlayerHand').replace('Hand2', 'SecondPlayerHand'))
-  const neededTags = []
-  cards.forEach(card => {
-    if (arrayCard.includes(card)) {
-      card.isChosen = false
-      neededTags.push(card.tag)
-      card.tag = ''
-      card.value = {
-        rank: '',
-        suit: ''
-      }
-    }
-  })
-  console.log(neededTags)
-  choiceCards.forEach(card => {
-    if (neededTags.includes(card.id)) {
-      console.log(card)
-      card.style.visibility = 'visible'
-      card.classList.remove('changed')
-    }
-  })*/
-}
-
-function unlockAllButtons() {
-  insertButtons.forEach(button => {
-    const position = button.id.replace('buttonInsert', '');
-    button.addEventListener('click', () => toggleEditMode(position))
-  })
-
-  randomButtons.forEach(button => {
-    const position = button.id.replace('buttonRandomize', '')
-    button.addEventListener('click', () => randomizeCards(position))
-  })
-
-  deleteButtons.forEach(button => {
-    const position = button.id.replace('buttonDelete', '')
-    button.addEventListener('click', () => deletePosition(position))
-  })
-}
-
-function lockAllButtons() {
-  insertButtons.forEach(button => {
-    button.removeEventListener('click', () => toggleEditMode(button.id.replace('buttonInsert', '')));
-  });
-
-  randomButtons.forEach(button => {
-    button.removeEventListener('click', () => randomizeCards(button.id.replace('buttonRandomize', '')));
-  });
-
-  deleteButtons.forEach(button => {
-    button.removeEventListener('click', () => deletePosition(button.id.replace('buttonDelete', '')));
-  });
-  console.log('locked!')
+  clearCardAnalysis()
+  removehighlightCards()
 }
 
 // card rows choice operation
-
-
 function handleMouseEnter() {
   this.classList.add('hover-effect');
 }
@@ -204,8 +154,9 @@ function findAvailableRandomCard() {
   }
 }
 
-//checked
-function assignCard(replaceCard, newCard) {
+
+
+function assignCard(replaceCard, newCard, isChoice = false, position) {
   const numberOfCardsInPosition = replaceCard.length
   const images = [];
   replaceCard.forEach((divElem) => {
@@ -222,6 +173,9 @@ function assignCard(replaceCard, newCard) {
       counter++
     }
   }
+  if (isChoice && checkCardsFilledPosition(position)) closeCardsForChoicePopUp()
+  clearCardAnalysis()
+  removehighlightCards()
 }
 
 function assignFaceDownCard(newCard, replaceCard) {
@@ -460,13 +414,14 @@ function allPlayerCards(player, assignedKnownCards) {
   return allCards
 }
 
-for (let combo of pokerCombinations) {
+/*for (let combo of pokerCombinations) {
   const li = document.createElement('li')
   li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center')
   li.style.visibility = 'hidden'
   li.innerText = combo.name
   pokerCombosList.appendChild(li)
-}
+}*/
+let currentStreet
 
 async function getPlayersEV(times) {
   let count = { firstPlayerWins: 0, secondPlayerWins: 0, draws: 0 }
@@ -478,10 +433,7 @@ async function getPlayersEV(times) {
   }
   const cards1 = allPlayerCards('firstPlayer', assigningKnownCards(street))
   const cards2 = allPlayerCards('secondPlayer', assigningKnownCards(street))
-  if (street === 'Preflop') count = await runSimPreflop(count, times, cards1, cards2)
-  else if (street === 'Flop') count = await runSimFlop(count, times, cards1, cards2)
-  else if (street === 'Turn') count = await runSimTurn(count, times, cards1, cards2)
-  else if (street === 'River') count = checkWin(cards1, cards2)
+  count = await runSim(count, times, cards1, cards2, street)
   const sum = count.firstPlayerWins + count.secondPlayerWins + count.draws
   const firstPlayerEV = count.firstPlayerWins * 100 / sum
   const secondPlayerEV = count.secondPlayerWins * 100 / sum
@@ -491,25 +443,47 @@ async function getPlayersEV(times) {
 
 async function fillEVText(times) {
   const EVObject = await getPlayersEV(times)
+  if (checkStreet() !== 'Preflop') {
+    firstPlayerCurrentHand.innerText = yourCurrentHand('firstPlayer').combo
+    secondPlayerCurrentHand.innerText = yourCurrentHand('secondPlayer').combo
+  }
   firstPlayerEVText.innerText = `${EVObject.firstPlayerEV.toFixed(2)} %`
   secondPlayerEVText.innerText = `${EVObject.secondPlayerEV.toFixed(2)} %`
   drawEVText.innerText = `${EVObject.drawPercent.toFixed(2)} %`
   if (EVObject.firstPlayerEV > EVObject.secondPlayerEV) {
     firstPlayerEVText.style.color = 'green'
     secondPlayerEVText.style.color = 'red'
+    if (checkStreet() !== 'Preflop') {
+      firstPlayerCurrentHand.style.color = 'green'
+      secondPlayerCurrentHand.style.color = 'red'
+    }
   } else if (EVObject.firstPlayerEV < EVObject.secondPlayerEV) {
     firstPlayerEVText.style.color = 'red'
     secondPlayerEVText.style.color = 'green'
+    if (checkStreet() !== 'Preflop') {
+      firstPlayerCurrentHand.style.color = 'red'
+      secondPlayerCurrentHand.style.color = 'green'
+    }
   } else drawEVText.style.color = 'green'
+}
+
+function clearCardAnalysis() {
+  if (bestCardsList) bestCardsList.innerHTML = ''
+  if (document.getElementById('piechart')) document.getElementById('piechart').innerHTML = ''
+  if (outsList) outsList.innerHTML = ''
 }
 
 async function oddsOfImproving(player, times) {
   const comboArray = await calculateOddsOfImproving(player, times)
-  const currentHand = yourCurrentHand(player)
-  //yourCurrentHandText.innerText = `Your Hand is ${currentHand.combo}`
-  drawChart(comboArray)
-  displayOuts(player)
-  displayBestCards(player)
+  if (firstPlayerEVText.innerText === '---' && secondPlayerEVText.innerText === '---' && checkStreet() !== 'Preflop') fillEVText(times);
+  if (currentStreet !== checkStreet() && checkStreet() !== 'Preflop') {
+    fillEVText(times);
+  }
+  if (checkStreet() !== 'Preflop' || checkStreet() !== 'River') {
+    await drawChart(comboArray)
+    displayOuts(player)
+    displayBestCards(player)
+  }
 }
 
 function calculateOddsOfImproving(player, times) {
@@ -520,7 +494,6 @@ function calculateOddsOfImproving(player, times) {
     street = checkStreet()
   }
   const cards = allPlayerCards(player, assigningKnownCards(street))
-  const holeCards = cards.slice(0, 2)
   const otherPlayerHoleCards = allPlayerCards(players.find(neededPlayer => neededPlayer !== player), assigningKnownCards(street)).slice(0, 2)
   let board = []
   if (cards.length > 2) board = cards.slice(2)
@@ -529,43 +502,11 @@ function calculateOddsOfImproving(player, times) {
     combo.count = 0;
     return combo
   })
-
   for (let i = 0; i < times; i++) {
-    const updatedCards = [...cards]
-    if (street == 'Preflop') {
-      const deadCards = [...updatedCards]
-      if (otherPlayerHoleCards) deadCards.concat(otherPlayerHoleCards)
-      //logic for removing 2nd player dead cards
-      const flop1 = randomizeCard(deadCards)
-      deadCards.push(flop1)
-      const flop2 = randomizeCard(deadCards)
-      deadCards.push(flop2)
-      const flop3 = randomizeCard(deadCards)
-      deadCards.push(flop3)
-      const turn = randomizeCard(deadCards)
-      deadCards.push(turn)
-      const river = randomizeCard(deadCards)
-      updatedCards.push(flop1, flop2, flop3, turn, river)
-    } else if (street == 'Flop') {
-      //logic for removing 2nd player dead cards
-      const deadCards = [...updatedCards]
-      if (otherPlayerHoleCards) deadCards.concat(otherPlayerHoleCards)
-      const turn = randomizeCard(deadCards)
-      deadCards.push(turn)
-      const river = randomizeCard(deadCards)
-      updatedCards.push(turn, river)
-    } else if (street == 'Turn') {
-      const deadCards = [...updatedCards]
-      if (otherPlayerHoleCards) deadCards.concat(otherPlayerHoleCards)
-      const river = randomizeCard(deadCards)
-      updatedCards.push(river)
-    }
-    const resultCombo = determineCombo(updatedCards)
-    const foundCombo = combinationsArray.find(item => item.strength === resultCombo.strength);
-    if (foundCombo) {
-      foundCombo.count += 1;
-    }
+    updateComboArray(street, cards, otherPlayerHoleCards, combinationsArray)
+
   }
+
   combinationsArray.map(combo => {
     const odds = `${(combo.count * 100 / times).toFixed(3)}%`
     combo.odds = odds
@@ -573,6 +514,45 @@ function calculateOddsOfImproving(player, times) {
   //console.log(combinationsArray)
   return combinationsArray;
 }
+
+function updateComboArray(street, cards, otherPlayerHoleCards, combinationsArray) {
+  const updatedCards = [...cards]
+  if (street == 'Preflop') {
+    const deadCards = [...updatedCards]
+    if (otherPlayerHoleCards) deadCards.concat(otherPlayerHoleCards)
+    //logic for removing 2nd player dead cards
+    const flop1 = randomizeCard(deadCards)
+    deadCards.push(flop1)
+    const flop2 = randomizeCard(deadCards)
+    deadCards.push(flop2)
+    const flop3 = randomizeCard(deadCards)
+    deadCards.push(flop3)
+    const turn = randomizeCard(deadCards)
+    deadCards.push(turn)
+    const river = randomizeCard(deadCards)
+    updatedCards.push(flop1, flop2, flop3, turn, river)
+  } else if (street == 'Flop') {
+    //logic for removing 2nd player dead cards
+    const deadCards = [...updatedCards]
+    if (otherPlayerHoleCards) deadCards.concat(otherPlayerHoleCards)
+    const turn = randomizeCard(deadCards)
+    deadCards.push(turn)
+    const river = randomizeCard(deadCards)
+    updatedCards.push(turn, river)
+  } else if (street == 'Turn') {
+    const deadCards = [...updatedCards]
+    if (otherPlayerHoleCards) deadCards.concat(otherPlayerHoleCards)
+    const river = randomizeCard(deadCards)
+    updatedCards.push(river)
+  }
+  const resultCombo = determineCombo(updatedCards)
+  const foundCombo = combinationsArray.find(item => item.strength === resultCombo.strength);
+  if (foundCombo) {
+    foundCombo.count += 1;
+  }
+}
+
+
 
 function drawChart(comboArray) {
   google.charts.load('current', { 'packages': ['corechart'] });
@@ -586,14 +566,39 @@ function drawChart(comboArray) {
     })
     const data = google.visualization.arrayToDataTable(dataArray);
     const options = {
-      title: 'Chances of Improving to the River'
+      title: 'Chances of Improving to the River',
+      backgroundColor: '#f5f5f5',
+      width: 600,
+      height: 400,
+      legend: { position: 'right', alignment: 'center', textStyle: { fontSize: 14 } },
+      chartArea: { left: 50, top: 50, width: '75%', height: '75%' }
     };
     const chart = new google.visualization.PieChart(document.getElementById('piechart'));
     chart.draw(data, options);
   });
 }
+const hightlightHand1 = document.querySelector('#Hand1')
+const hightlightHand2 = document.querySelector('#Hand2')
+
+function highlightCards(player) {
+  if (player === 'firstPlayer') {
+    hightlightHand1.classList.add('highlighted')
+    if (hightlightHand2.classList.contains('highlighted')) hightlightHand2.classList.remove('highlighted')
+  }
+  else if (player === 'secondPlayer') {
+    hightlightHand2.classList.add('highlighted')
+    if (hightlightHand1.classList.contains('highlighted')) hightlightHand1.classList.remove('highlighted')
+  }
+}
+
+function removehighlightCards() {
+  if (hightlightHand1.classList.contains('highlighted')) hightlightHand1.classList.remove('highlighted')
+  if (hightlightHand2.classList.contains('highlighted')) hightlightHand2.classList.remove('highlighted')
+}
+
 
 function displayBestCards(player) {
+  highlightCards(player)
   const cardCombos = findBestCards(player)
   if (bestCardsList) bestCardsList.innerHTML = ''
   const title = document.createElement('h4')
@@ -608,10 +613,28 @@ function displayBestCards(player) {
     img.setAttribute('width', '60px')
     img.classList.add('outs')
     li.appendChild(img)
-    const badge = document.createElement('span')
-    badge.classList.add('badge', 'bg-light', 'justify-content-between', 'text-bg-light',)
-    badge.innerText = cardCombo.combo.combo
-    li.appendChild(badge)
+    let color
+    const EVValue = cardCombo.EV
+    const alpha = Math.min(EVValue / 100 + 0.1, 1)
+    if (EVValue < 50) {
+      // For values less than 50, transition from darker red to light blue
+      const alphaRed = 1 - alpha;
+      color = `rgba(255, 0, 0, ${alphaRed})`;
+    } else if (EVValue === 50) {
+      // For values equal to 50, use a specific light blue color
+      color = '#ADD8E6';
+    } else {
+      // For values greater than 50, transition from light blue to light green
+      color = `rgba(144, 238, 144, ${alpha})`;
+    }
+    const comboBadge = document.createElement('badge')
+    comboBadge.style.background = color
+    comboBadge.innerText = cardCombo.combo.combo
+    li.appendChild(comboBadge)
+    const EVBadge = document.createElement('badge')
+    EVBadge.style.background = color
+    EVBadge.innerText = `${cardCombo.EV} %`;
+    li.appendChild(EVBadge)
     bestCardsList.appendChild(li)
   }
 }
@@ -656,14 +679,19 @@ function findBestCards(player) {
   const presentComboStrength = determineCombo(playerCards).strength
   const cardsCombos = getAllCombos(player, remainingCards)
   const betterCardsCombos = cardsCombos.filter(c => c.combo.strength > presentComboStrength)
-  //const sortedCombos = betterCardsCombos.sort((a, b) => b.combo.strength - a.combo.strength);
-  const sortedCombos = betterCardsCombos.sort((a, b) => {
-    if (b.combo.strength !== a.combo.strength) {
-      return b.combo.strength - a.combo.strength;
-    }
-    return rankValues[b.nextCard.rank] - rankValues[a.nextCard.rank];
-  });
-
+  const nextStreet = (street === 'Flop') ? 'Turn' : (street === 'Turn' ? 'River' : 'UnknownStreet');
+  betterCardsCombos.map(combo => {
+    const playerCardsAdj = allPlayerCards(player, assigningKnownCards(street))
+    const otherPlayerCards = allPlayerCards(players.find(neededPlayer => neededPlayer !== player), assigningKnownCards(street))
+    playerCardsAdj.push(combo.nextCard)
+    otherPlayerCards.push(combo.nextCard)
+    let count = { firstPlayerWins: 0, secondPlayerWins: 0, draws: 0 }
+    const simulations = 1000
+    const result = runSim(count, simulations, playerCardsAdj, otherPlayerCards, nextStreet)
+    if (player === 'firstPlayer') combo.EV = (result.firstPlayerWins + result.draws / 2) * 100 / simulations
+    else if (player === 'secondPlayer') combo.EV = (result.firstPlayerWins + result.draws / 2) * 100 / simulations
+  })
+  const sortedCombos = betterCardsCombos.sort((a, b) => b.EV - a.EV);
   return sortedCombos
 }
 
@@ -735,51 +763,22 @@ function getAllCombos(player, remainingCards) {
   return result
 }
 
-function runSimTurn(count, times, cards1, cards2) {
+function runSim(count, times, cards1, cards2, street) {
   let currentCount = { ...count }
-  currentCount.firstPlayerWins
   for (let i = 0; i < times; i++) {
-    const firstCards = [...cards1]
-    const secondCards = [...cards2]
-    const deadCards = firstCards.concat(secondCards)
-    const river = randomizeCard(deadCards)
-    firstCards.push(river)
-    secondCards.push(river)
-    const calculatedCount = checkWin(firstCards, secondCards)
-    currentCount.firstPlayerWins += calculatedCount.firstPlayerWins;
-    currentCount.secondPlayerWins += calculatedCount.secondPlayerWins;
-    currentCount.draws += calculatedCount.draws;
+    const result = runSimOnce(cards1, cards2, street)
+    currentCount.firstPlayerWins += result.firstPlayerWins;
+    currentCount.secondPlayerWins += result.secondPlayerWins;
+    currentCount.draws += result.draws;
   }
   return currentCount
 }
 
-function runSimFlop(count, times, cards1, cards2) {
-  let currentCount = { ...count }
-  currentCount.firstPlayerWins
-  for (let i = 0; i < times; i++) {
-    const firstCards = [...cards1]
-    const secondCards = [...cards2]
-    const deadCards = firstCards.concat(secondCards)
-    const turn = randomizeCard(deadCards)
-    deadCards.push(turn)
-    const river = randomizeCard(deadCards)
-    firstCards.push(turn, river)
-    secondCards.push(turn, river)
-    const calculatedCount = checkWin(firstCards, secondCards)
-    currentCount.firstPlayerWins += calculatedCount.firstPlayerWins;
-    currentCount.secondPlayerWins += calculatedCount.secondPlayerWins;
-    currentCount.draws += calculatedCount.draws;
-  }
-  return currentCount
-}
-
-function runSimPreflop(count, times, cards1, cards2) {
-  let currentCount = { ...count }
-  currentCount.firstPlayerWins
-  for (let i = 0; i < times; i++) {
-    const firstCards = [...cards1]
-    const secondCards = [...cards2]
-    const deadCards = firstCards.concat(secondCards)
+function runSimOnce(cards1, cards2, street) {
+  const firstCards = [...cards1]
+  const secondCards = [...cards2]
+  const deadCards = firstCards.concat(secondCards)
+  if (street === 'Preflop') {
     const flop1 = randomizeCard(deadCards)
     deadCards.push(flop1)
     const flop2 = randomizeCard(deadCards)
@@ -791,12 +790,22 @@ function runSimPreflop(count, times, cards1, cards2) {
     const river = randomizeCard(deadCards)
     firstCards.push(flop1, flop2, flop3, turn, river)
     secondCards.push(flop1, flop2, flop3, turn, river)
-    const calculatedCount = checkWin(firstCards, secondCards)
-    currentCount.firstPlayerWins += calculatedCount.firstPlayerWins;
-    currentCount.secondPlayerWins += calculatedCount.secondPlayerWins;
-    currentCount.draws += calculatedCount.draws;
   }
-  return currentCount
+  else if (street === 'Flop') {
+    const turn = randomizeCard(deadCards)
+    deadCards.push(turn)
+    const river = randomizeCard(deadCards)
+    firstCards.push(turn, river)
+    secondCards.push(turn, river)
+  }
+  else if (street === 'Turn') {
+    const river = randomizeCard(deadCards)
+    firstCards.push(river)
+    secondCards.push(river)
+  }
+  const calculatedCount = checkWin(firstCards, secondCards)
+  currentStreet = street
+  return calculatedCount
 }
 
 function randomizeCard(existingCards) {
