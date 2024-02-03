@@ -37,7 +37,6 @@ const cards = [
   { name: 'Flop3', card: flop3, isChosen: false, order: 7 },
   { name: 'Turn', card: turnC, isChosen: false, order: 8 },
   { name: 'River', card: riverC, isChosen: false, order: 9 }
-
 ];
 
 insertButtons.forEach(button => {
@@ -52,7 +51,7 @@ deleteButtons.forEach(button => {
   const position = button.id.replace('buttonDelete', '')
   button.addEventListener('click', () => deletePosition(position))
 })
-runSimButton.addEventListener('click', () => fillEVText(10000))
+runSimButton.addEventListener('click', () => fillEVText(100000))
 oddsButtons.forEach(button => {
   button.addEventListener('click', async function (event) {
     const player = ((button.id.replace('buttonOddsHand', '') === '1') ? 'firstPlayer' : 'secondPlayer')
@@ -61,6 +60,7 @@ oddsButtons.forEach(button => {
   });
 })
 
+//referable event on buttons, which can be toggled
 let clickHandler
 //button functions
 function toggleEditMode(position, button) {
@@ -101,12 +101,6 @@ function closeCardsForChoicePopUp() {
   document.getElementById('popup').style.display = 'none';
 }
 
-function checkCardsFilledPosition(position) {
-  const arrayCards = cards.filter(card => card.name.replace(/\d/g, '') == position.replace('Hand1', 'FirstPlayerHand').replace('Hand2', 'SecondPlayerHand'))
-  const nonChosenCards = arrayCards.filter(card => card.isChosen === false);
-  return nonChosenCards.length !== 0 ? false : true;
-}
-
 function toggleChoiceModeCards() {
   editModeOn = !editModeOn;
   choiceCards.forEach(card => {
@@ -119,13 +113,6 @@ function toggleChoiceModeCards() {
       card.addEventListener("mouseleave", handleMouseLeave);
     }
   });
-}
-
-function deletePosition(position) {
-  unassignFaceDownCards(position)
-  removeDeadCard(position)
-  clearCardAnalysis()
-  removehighlightCards()
 }
 
 // card rows choice operation
@@ -154,8 +141,6 @@ function findAvailableRandomCard() {
   }
 }
 
-
-
 function assignCard(replaceCard, newCard, isChoice = false, position) {
   const numberOfCardsInPosition = replaceCard.length
   const images = [];
@@ -178,6 +163,12 @@ function assignCard(replaceCard, newCard, isChoice = false, position) {
   removehighlightCards()
 }
 
+function checkCardsFilledPosition(position) {
+  const arrayCards = cards.filter(card => card.name.replace(/\d/g, '') == position.replace('Hand1', 'FirstPlayerHand').replace('Hand2', 'SecondPlayerHand'))
+  const nonChosenCards = arrayCards.filter(card => card.isChosen === false);
+  return nonChosenCards.length !== 0 ? false : true;
+}
+
 function assignFaceDownCard(newCard, replaceCard) {
   const arrayCard = cards.find(facedownCard => facedownCard.name == replaceCard.id)
   arrayCard.isChosen = true
@@ -186,6 +177,15 @@ function assignFaceDownCard(newCard, replaceCard) {
     rank: extractCard(newCard.id).rank,
     suit: extractCard(newCard.id).suit
   }
+}
+
+
+
+function deletePosition(position) {
+  unassignFaceDownCards(position)
+  removeDeadCard(position)
+  clearCardAnalysis()
+  removehighlightCards()
 }
 
 function unassignFaceDownCards(position) {
@@ -212,19 +212,6 @@ function removeDeadCard(position) {
       card.style.visibility = 'visible';
     }
   })
-  /*choiceCards.forEach(card => {
-    if (card.id === cardValue) {
-      card.style.visibility = 'hidden';
-      card.classList.add('inUse')
-    }
-  });
-  const arrayCard = cards.find(facedownCard => facedownCard.name == replaceCard.id)
-  arrayCard.isChosen = true
-  arrayCard.tag = newCard.id
-  arrayCard.value = {
-    rank: extractCard(newCard.id).rank,
-    suit: extractCard(newCard.id).suit
-  }*/
 }
 
 const deadCards = []
@@ -238,7 +225,6 @@ function addDeadCard(newCard) {
   });
 }
 
-
 function extractCard(card) {
   const parts = card.split('_');
   let rank = parts[0];
@@ -249,7 +235,7 @@ function extractCard(card) {
 }
 
 
-/////////////////////////// simulation after
+/////////////////////////// simulation functions after
 
 
 let firstPlayerHand = []
@@ -403,7 +389,6 @@ function allPlayerCards(player, assignedKnownCards) {
     allCards[4] = assignedKnownCards.flop[0].thirdCard
     allCards[5] = assignedKnownCards.turn
   }
-
   if (checkStreet() === 'River') {
     allCards[2] = assignedKnownCards.flop[0].firstCard
     allCards[3] = assignedKnownCards.flop[0].secondCard
@@ -414,13 +399,6 @@ function allPlayerCards(player, assignedKnownCards) {
   return allCards
 }
 
-/*for (let combo of pokerCombinations) {
-  const li = document.createElement('li')
-  li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center')
-  li.style.visibility = 'hidden'
-  li.innerText = combo.name
-  pokerCombosList.appendChild(li)
-}*/
 let currentStreet
 
 async function getPlayersEV(times) {
@@ -434,10 +412,9 @@ async function getPlayersEV(times) {
   const cards1 = allPlayerCards('firstPlayer', assigningKnownCards(street))
   const cards2 = allPlayerCards('secondPlayer', assigningKnownCards(street))
   count = await runSim(count, times, cards1, cards2, street)
-  const sum = count.firstPlayerWins + count.secondPlayerWins + count.draws
-  const firstPlayerEV = count.firstPlayerWins * 100 / sum
-  const secondPlayerEV = count.secondPlayerWins * 100 / sum
-  const drawPercent = count.draws * 100 / sum
+  const firstPlayerEV = count.firstPlayerWins * 100 / times
+  const secondPlayerEV = count.secondPlayerWins * 100 / times
+  const drawPercent = count.draws * 100 / times
   return { firstPlayerEV, secondPlayerEV, drawPercent }
 }
 
@@ -552,8 +529,6 @@ function updateComboArray(street, cards, otherPlayerHoleCards, combinationsArray
   }
 }
 
-
-
 function drawChart(comboArray) {
   google.charts.load('current', { 'packages': ['corechart'] });
   google.charts.setOnLoadCallback(function () {
@@ -597,9 +572,9 @@ function removehighlightCards() {
 }
 
 
-function displayBestCards(player) {
+async function displayBestCards(player) {
   highlightCards(player)
-  const cardCombos = findBestCards(player)
+  const cardCombos = await findBestCards(player)
   if (bestCardsList) bestCardsList.innerHTML = ''
   const title = document.createElement('h4')
   title.innerText = `For Better Combo - ${cardCombos.length}`
@@ -617,14 +592,11 @@ function displayBestCards(player) {
     const EVValue = cardCombo.EV
     const alpha = Math.min(EVValue / 100 + 0.1, 1)
     if (EVValue < 50) {
-      // For values less than 50, transition from darker red to light blue
       const alphaRed = 1 - alpha;
       color = `rgba(255, 0, 0, ${alphaRed})`;
     } else if (EVValue === 50) {
-      // For values equal to 50, use a specific light blue color
       color = '#ADD8E6';
     } else {
-      // For values greater than 50, transition from light blue to light green
       color = `rgba(144, 238, 144, ${alpha})`;
     }
     const comboBadge = document.createElement('badge')
@@ -686,7 +658,7 @@ function findBestCards(player) {
     playerCardsAdj.push(combo.nextCard)
     otherPlayerCards.push(combo.nextCard)
     let count = { firstPlayerWins: 0, secondPlayerWins: 0, draws: 0 }
-    const simulations = 1000
+    const simulations = 5000
     const result = runSim(count, simulations, playerCardsAdj, otherPlayerCards, nextStreet)
     if (player === 'firstPlayer') combo.EV = (result.firstPlayerWins + result.draws / 2) * 100 / simulations
     else if (player === 'secondPlayer') combo.EV = (result.firstPlayerWins + result.draws / 2) * 100 / simulations
@@ -695,8 +667,7 @@ function findBestCards(player) {
   return sortedCombos
 }
 
-function findOuts(player) {
-  const street = checkStreet()
+function findOuts(player) {const street = checkStreet()
   const playerCards = allPlayerCards(player, assigningKnownCards(street))
   const otherPlayerCards = allPlayerCards(players.find(neededPlayer => neededPlayer !== player), assigningKnownCards(street))
   const score = checkWin(playerCards, otherPlayerCards)
