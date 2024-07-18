@@ -8,8 +8,8 @@
         integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <script src="https://kit.fontawesome.com/6eca2c2b0c.js" crossorigin="anonymous"></script>
-    <script type="module" src="./scripts/displayFunction.js"></script>
-    <script type="module" src="./scripts/checkHandStrength.js"></script>
+    <script type="module" src="./scripts/fillingfunctions/displayFunction.js"></script>
+    <script type="module" src="./scripts/checkCombosFunctions/checkHandStrength.js"></script>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="module" src="./poker.js"></script>
 </head>
@@ -20,17 +20,22 @@
             <ul class="navbar-nav" style="margin-left: 5%;">
                 <img src="Files/Chip.jpg" alt="Logo">
                 <li class="nav-item active">
-                    <a class="nav-link" href="#"><b> Poker
-                            Calculator</b></a>
+                    <a class="nav-link" href="/calculator.html"><b> Hand vs Hand Calculator</b></a>
                 </li>
                 <li class="nav-item active">
-                    <a class="nav-link" href="#">Instruction for Usage</a>
+                    <a class="nav-link" href="/pokerTable.html">Range Table</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/pokerTable.html">Range Calculator</a>
                 </li>
                 <li class="nav-item active">
                     <a class="nav-link" href="https://upswingpoker.com/poker-rules/texas-holdem-rules/"
-                        target="_blank">Poker Rules</a>
+                        target="_blank">Poker
+                        Rules</a>
                 </li>
-
+                <li class="nav-item active">
+                    <a class="nav-link" href="/rangeCalc.html">Instruction for Usage</a>
+                </li>
             </ul>
         </div>
     </nav>
@@ -88,10 +93,9 @@
                         </div>
                     </div>
                     <div class="row playerHands mt-10">
-                        <div class="col-md-1"></div>
-                        <div class="col-md-3 playerHandFull Hand1">
+                        <div class="col-6 col-md-6 playerHandFull Hand1">
                             <h5><b>You</b></h5>
-                            <div class="playerHand" id="Hand1">
+                            <div class="playerHand" id="Hand1" style="display: flex; justify-content: center;">
                                 <div class="card playerCard" id="FirstPlayerHand1">
                                     <a href="" class="facedownCard"><img src="Files/CardFaceDown.png" alt="Turn"></a>
                                 </div>
@@ -109,10 +113,9 @@
                                         class="fa-solid fa-trash"></i></button>
                             </div>
                         </div>
-                        <div class="col-md-2"></div>
-                        <div class="col-md-3 playerHandFull Hand2">
+                        <div class="col-6 col-md-6 playerHandFull Hand2">
                             <h5><b>Opponent</b></h5>
-                            <div class="playerHand" id="Hand2">
+                            <div class="playerHand" id="Hand2" style="display: flex; justify-content: center;">
                                 <div class="card playerCard" id="SecondPlayerHand1">
                                     <a href="" class="facedownCard"><img src="Files/CardFaceDown.png" alt="Turn"></a>
                                 </div>
@@ -131,43 +134,57 @@
                             </div>
 
                         </div>
-                        <div class="col-md-1"></div>
                     </div>
                 </div>
                 <div class="container mt-5">
-                    <div class="row mt-6" style="justify-content: space-around;">
-                        <div class=" col-md-2">
-                            <h5><b>Result</b></h5>
-                            <h5><b>Equity, %</b></h5>
-                            <h5><b>Hand</b></h5>
-                        </div>
-                        <div class="col-md-2">
-                                <h5><b>You</b></h5>
-                                <h5><b id="firstPlayerEVText">---</b></h5>
-                                <h5><b id="firstPlayerCurrentHand">---</b></h5>
-                            <button class="btn btn-primary btn-sm oddsButton" id="buttonOddsHand1"
-                                style="margin-top: 5px;">Hand
-                                Analysis</button>
+                    <div class="container">
+                        <div class="row mt-6">
+                            <div class="col-md-12">
+                                <div class="table-responsive" style="border-radius: 0.5em;">
+                                    <table class="table table-bordered table-responsive">
+                                        <thead>
+                                            <tr>
+                                                <th class="col-2">Player</th>
+                                                <th class="col-2">Win</th>
+                                                <th class="col-2">Draw</th>
+                                                <th class="col-4">Hand</th>
+                                                <th class="col-2">Analysis</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="col-2" style="font-style: italic; font-size: 1.2rem;">
+                                                    <b>You</b></td>
+                                                <td class="col-2" style="font-size: 1.2rem;"><b
+                                                        id="firstPlayerEVText">---</b></td>
+                                                <td class="col-2" rowspan="2" style="font-size: 1.2rem; vertical-align: middle;"><b
+                                                        id="drawEVText">---</b></td>
+                                                <td class="col-6" style="font-size: 1.2rem;"><b
+                                                        id="firstPlayerCurrentHand">---</b></td>
+                                                <td class="col-2"><button class="btn btn-primary btn-sm oddsButton"
+                                                        id="buttonOddsHand1" style="padding: 0.5em;">Analysis</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="col-2" style="font-style: italic; font-size: 1.2rem;">
+                                                    <b>Opponent</b></td>
+                                                <td class="col-2" style="font-size: 1.2rem;"><b
+                                                        id="secondPlayerEVText">---</b></td>
+                                                <td class="col-6" style="font-size: 1.2rem;"><b
+                                                        id="secondPlayerCurrentHand">---</b></td>
+                                                <td class="col-2"><button class="btn btn-primary btn-sm oddsButton"
+                                                        id="buttonOddsHand2" style="padding: 0.5em;">Analysis</button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
 
+                                </div>
+                                <td></td>
+                                <td rowspan="2"><button class="btn btn-success" id="runSimButton">Run
+                                        Simulation</button></td>
+                            </div>
                         </div>
-                        <div class="col md-2">
-                            <h5><b>Draw</b></h5>
-                            <h5><b id="drawEVText">---</b></h5>
-                            <br>
-                            <br>
-                            <br>
-                            <button class="btn btn-success" id="runSimButton" style="margin-bottom: 20px;">Run
-                                Simulation</button>
-                        </div>
-                        <div class="col-md-3">
-                                <h5><b>Opponent</b></h5>
-                                <h5><b id="secondPlayerEVText">---</b></h5>
-                                <h5><b id="secondPlayerCurrentHand">---</b></h5>
-                            <button class="btn btn-primary btn-sm oddsButton" id="buttonOddsHand2"
-                                style="margin-top: 5px;">Hand
-                                Analysis</button>
-                        </div>
-                        <div class="col-md-2"></div>
                     </div>
                 </div>
                 <div class="row-mt-2">

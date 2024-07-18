@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <link rel="stylesheet" href="poker.css">
+  <link rel="stylesheet" href="range.css">
+  <title>Poker Table</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <script src="https://kit.fontawesome.com/6eca2c2b0c.js" crossorigin="anonymous"></script>
+
+  <script type="module" src="./scripts/fillingfunctions/handRanking.js"></script>
+  <script type="module" src="./scripts/fillingfunctions/helperVariables.js"></script>
+  <script type="module" src="./pokerTable.js"></script>
+  <script type="module" src="./saveRanges.js"></script>
+  <script type="module" src="./cardDeckCombos.js"></script>
+  <script type="module" src="./classes.js"></script>
+</head>
+
+<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #e3f2fd;">
+  <div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav" style="margin-left: 5%;">
+      <img src="Files/Chip.jpg" alt="Logo">
+      <li class="nav-item active">
+        <a class="nav-link" href="/calculator.html"><b> Hand vs Hand Calculator</b></a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="/pokerTable.html">Range Table</a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="/rangeCalc.html">Range Calculator</a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="https://upswingpoker.com/poker-rules/texas-holdem-rules/" target="_blank">Poker
+          Rules</a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="/rangeCalc.html">Instruction for Usage</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+
+<body>
+  <div class="container">
+    <div class="row" style="margin: auto; margin-top: 2em;">
+      <div class="col-12 col-sm-12 col-md-12 col-lg-8 col-xl-8">
+        <div class="row d-flex justify-content-center" style="width: auto;">
+          <div class="table-responsive">
+            <table class="table table-bordered rangeTables" id="range-player1"></table>
+          </div>
+        </div>
+        <div class="row">
+          <div style="margin: auto; margin-top: 1em;">
+            <div style="margin: auto;">
+              <div class="audio-progress" id="audio-progress-player1">
+                <div id="draggable-point-player1" style="left:1.5%;position:absolute;"
+                  class="draggable ui-widget-content player1">
+                  <div id="audio-progress-handle-player2"></div>
+                </div>
+                <div id="audio-progress-bar-player1" class="bar" style="width:1.5%">
+                </div>
+
+              </div>
+              <div class="rangePercentChosen d-flex justify-content-center" style="margin-top: 0.5em;"
+                id="range-player1">
+                ---
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row justify-content-center align-items-center rangeCalc" style="margin-top: 1em;">
+          <div class="displayHandMarkupsContainer"></div>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-12 col-md-12 col-lg-4 col-xl-4">
+        <div class="row d-flex">
+          <div class="container">
+            <div class="rangeWindow" style="margin-top: 0.7em;" id="rangeWindow-player2">
+              <div class="d-flex align-items-center">
+                <button class="btn btn-primary mb-3" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#collapsePreRanges-player1" aria-expanded="false" aria-controls="collapseExample"
+                  id="collapseButton">
+                  <i class="fas fa-plus"></i>
+                </button>
+                <span class="text-center" id="rangesLabel">Pre-Defined Ranges</span>
+              </div>
+              <div class="collapse collapse-container" id="collapsePreRanges-player1">
+                <ul class="list-group">
+                  <li class="list-group-item"><a href="#" class="text-decoration-none rangeButtons"
+                      id="broadway-player1">Broadway</a></li>
+                  <li class="list-group-item"><a href="#" class="text-decoration-none rangeButtons"
+                      id="suited-connectors-player1">Suited Connectors</a></li>
+                  <li class="list-group-item"><a href="#" class="text-decoration-none rangeButtons"
+                      id="suited-aces-player1">Suited Aces</a></li>
+                  <li class="list-group-item"><a href="#" class="text-decoration-none rangeButtons"
+                      id="suited-onegapers-player1">Suited One Gapers</a></li>
+                  <li class="list-group-item"><a href="#" class="text-decoration-none rangeButtons"
+                      id="pairs-player1">Pairs</a>
+                  </li>
+                  <li class="list-group-item"><a href="#" class="text-decoration-none rangeButtons"
+                      id="suited-twogapers-player1">Suited Two-Gapers</a></li>
+                  <li class="list-group-item"><a href="#" class="text-decoration-none rangeButtons"
+                      id="offsuited-aces-player1">Off-Suited Aces</a></li>
+                  <li class="list-group-item"><a href="#" class="text-decoration-none rangeButtons"
+                      id="offsuited-connectors-player1">Off-Suited Connectors</a></li>
+                </ul>
+              </div>
+              <div class="d-flex align-items-center mt-2">
+                <button class="btn btn-primary mb-3" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#collapseOpenRaiseRanges" aria-expanded="false" aria-controls="collapseExample"
+                  id="collapseButton">
+                  <i class="fas fa-plus"></i>
+                </button>
+                <span class="text-center" id="rangesLabel">Open Raises</span>
+              </div>
+              <div class="collapse collapse-container" id="collapseOpenRaiseRanges">
+                <ul class="list-group openRaisesRangesList">
+
+                </ul>
+              </div>
+              <div class="d-flex align-items-center mt-2">
+                <button class="btn btn-primary mb-3" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#collapseThreeBetRanges" aria-expanded="false" aria-controls="collapseExample"
+                  id="collapseButton">
+                  <i class="fas fa-plus"></i>
+                </button>
+                <span class="text-center" id="rangesLabel">3-Bets</span>
+              </div>
+              <div class="collapse collapse-container" id="collapseThreeBetRanges">
+                <ul class="list-group threeBetsRangesList">
+
+                </ul>
+              </div>
+              <div class="d-flex align-items-center mt-2">
+                <button class="btn btn-primary mb-3" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#collapseDefensesRanges" aria-expanded="false" aria-controls="collapseExample"
+                  id="collapseButton">
+                  <i class="fas fa-plus"></i>
+                </button>
+                <span class="text-center" id="rangesLabel">Defenses</span>
+              </div>
+              <div class="collapse collapse-container" id="collapseDefensesRanges">
+                <ul class="list-group defensesRangesList">
+
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row d-flex mt-3">
+          <div class="col-4" style="margin: auto;">
+            <button class="btn btn-success" id="saveRangeBtn">Save Range</button>
+          </div>
+        </div>
+        <div class="modal" id="myModal">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Enter Name to Save</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+              </div>
+              <div class="modal-body">
+                <form id="saveForm">
+                  <div class="form-group">
+                    <label for="nameInput">Name:</label>
+                    <input type="text" class="form-control" id="nameInput" required style="margin-top: 0.3em;">
+                  </div>
+                  <div class="form-group">
+                    <label for="categoryInput">Category</label>
+                    <select class="form-control" id="categoryInput" required style="margin-top: 0.3em;">
+                      <option value="" selected disabled>Select category</option>
+                      <option value="openRaises">Open Raises</option>
+                      <option value="threeBets">3-Bets</option>
+                      <option value="defenses">Defenses</option>
+                    </select>
+                  </div>
+                </form>
+              </div>
+              <button type="submit" form="saveForm" class="btn btn-primary"
+                style="width: 10em; margin: auto;">Save</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="loading-bar" id="loadingBar"></div>
+    <div class="row justify-content-center align-items-center">
+      <button class="btn btn-success" id="btnRangeCalc">Action</button>
+    </div>
+  </div>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
+    integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous">
+    </script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+  <script>
+
+  </script>
+</body>
+
+</html>
